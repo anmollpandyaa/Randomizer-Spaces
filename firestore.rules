@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+    }
+    function isRequestOwner() {
+      return isAuthenticated() && request.auth.uid == request.resource.data.ownerId;
+    }
+
+    // Space validation
+    function isValidSpace(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.ownerId is string &&
+             data.createdAt is timestamp;
+    }
+
+    // Collection validation
+    function isValidCollection(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.spaceId is string &&
+             data.ownerId is string &&
+             data.createdAt is timestamp;
+    }
+
+    // Item validation
+    function isValidItem(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.collectionId is string &&
+             data.ownerId is string &&
+             data.createdAt is timestamp;
+    }
+
+    match /spaces/{spaceId} {
+      allow read: if isDocOwner();
+      allow create: if isRequestOwner() && isValidSpace(request.resource.data);
+      allow update: if isDocOwner() && isRequestOwner() && isValidSpace(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /collections/{collectionId} {
+      allow read: if isDocOwner();
+      allow create: if isRequestOwner() && isValidCollection(request.resource.data);
+      allow update: if isDocOwner() && isRequestOwner() && isValidCollection(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /items/{itemId} {
+      allow read: if isDocOwner();
+      allow create: if isRequestOwner() && isValidItem(request.resource.data);
+      allow update: if isDocOwner() && isRequestOwner() && isValidItem(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+  }
+}

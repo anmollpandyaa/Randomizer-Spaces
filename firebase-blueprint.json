@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Space": {
+      "title": "Space",
+      "description": "A group of collections",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The name of the space" },
+        "ownerId": { "type": "string", "description": "The UID of the owner" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["title", "ownerId", "createdAt"]
+    },
+    "Collection": {
+      "title": "Collection",
+      "description": "A list of items within a space",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The name of the collection" },
+        "spaceId": { "type": "string", "description": "The ID of the parent space" },
+        "ownerId": { "type": "string", "description": "The UID of the owner" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["title", "spaceId", "ownerId", "createdAt"]
+    },
+    "Item": {
+      "title": "Item",
+      "description": "An individual item in a collection",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the item" },
+        "collectionId": { "type": "string", "description": "The ID of the parent collection" },
+        "ownerId": { "type": "string", "description": "The UID of the owner" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["name", "collectionId", "ownerId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/spaces/{spaceId}": {
+      "schema": "Space",
+      "description": "User spaces"
+    },
+    "/collections/{collectionId}": {
+      "schema": "Collection",
+      "description": "Collections within spaces"
+    },
+    "/items/{itemId}": {
+      "schema": "Item",
+      "description": "Items within collections"
+    }
+  }
+}
